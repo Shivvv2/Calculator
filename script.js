@@ -1,4 +1,10 @@
 
+let firstNumber = '';
+let operator = '';
+let secondNumber = '';
+let isSecondNumber = false;
+let justCalculated = false;
+
 function add(a, b) {
     return a + b;
 };
@@ -7,22 +13,15 @@ function subtract(a, b) {
 };
 
 function multiply(a, b) {
-    return Math.round((a * b)*100)/100;
+    return a * b;
 };
 
 function divide(a, b) {
-    if (b !== 0) {
-        return Math.round((a / b)*100)/100;
-    } else {
-        return "Fcuk you";
-    }
+    if (b === 0) return "Nice Try!";
+    return a / b;
+
 };
 
-let firstNumber = '';
-let operator = '';
-let secondNumber = '';
-let isSecondNumber = false;
-let isOperator = false;
 
 function operate(operator, firstNumber, secondNumber) {
     firstNumber = Number(firstNumber);
@@ -47,16 +46,23 @@ function operate(operator, firstNumber, secondNumber) {
 
 const result_screen = document.querySelector('#display');
 const current_digit = document.querySelectorAll('.digits');
+const operatorButton = document.querySelectorAll('[data-operator]');
+const equalto = document.querySelector('.equalto');
+const decimal = document.querySelector('.decimal');
 
 function updateNumber(digit) {
-    if (!isSecondNumber && operator === '') {
+    if (operator === '') {
+        if(justCalculated){
+            firstNumber ='';
+            justCalculated = false;
+        }
         firstNumber += digit;
         result_screen.textContent = firstNumber;
     }
     else {
 
         secondNumber += digit;
-        result_screen.textContent = `${secondNumber}`;
+        result_screen.textContent = secondNumber;
     }
 }
 
@@ -66,14 +72,17 @@ current_digit.forEach((digit) => {
     })
 })
 
-const operatorButton = document.querySelectorAll('[data-operator]');
+
 
 operatorButton.forEach((button) => {
     button.addEventListener('click', () => {
-        if(firstNumber==='')return;
-        if (secondNumber!=='' && operator !== '') {
-            firstNumber = operate(operator, firstNumber, secondNumber);
-            result_screen.textContent = firstNumber ;
+        if (firstNumber === '') return;
+        if (secondNumber !== '' && operator !== '') {
+            const result = updateResult();
+            if (typeof (result) === 'number') {
+                firstNumber = result;
+            }
+            result_screen.textContent = firstNumber;
             operator = button.dataset.operator;
             secondNumber = '';
             isSecondNumber = false
@@ -88,15 +97,21 @@ operatorButton.forEach((button) => {
     })
 })
 
-const equalto = document.querySelector('.equalto');
+
 equalto.addEventListener('click', () => {
-    if (operator !== '' && firstNumber !== '' && secondNumber !== '') {
-         firstNumber = operate(operator, firstNumber, secondNumber);
-        result_screen.textContent = firstNumber;
+    if (operator !== '' && secondNumber !== '') {
+        const result = updateResult();
+        if (typeof (result) === 'number') {
+            firstNumber = result;
+        }
+
+        result_screen.textContent = result;
+        
         operator = '';
         secondNumber = '';
-        
+
         isSecondNumber = false;
+        justCalculated = true
 
     }
 
@@ -108,5 +123,16 @@ clear.addEventListener('click', () => {
     secondNumber = '';
     operator = '';
     isSecondNumber = false;
+    justCalculated = false;
     result_screen.textContent = '';
 })
+
+function updateResult() {
+    const result = operate(operator, firstNumber, secondNumber);
+    if(typeof(result)==='number'){
+        return Math.round(result*100)/100;
+    }
+    else{
+        return result;
+    }
+}

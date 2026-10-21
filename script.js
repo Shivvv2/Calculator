@@ -14,7 +14,7 @@ function subtract(a, b) {
 
 function multiply(a, b) {
     return a * b;
-    return a * b;
+    
 };
 
 function divide(a, b) {
@@ -50,9 +50,10 @@ const current_digit = document.querySelectorAll('.digits');
 const operatorButton = document.querySelectorAll('[data-operator]');
 const equalto = document.querySelector('.equalto');
 const decimal = document.querySelector('.decimal');
+const backSpace = document.querySelector('.backspace');
 
 function updateNumber(digit) {
-    if (operator === '') {
+    if (!isSecondNumber && operator === '') {
         if(justCalculated){
             firstNumber ='';
             justCalculated = false;
@@ -80,8 +81,10 @@ operatorButton.forEach((button) => {
         if (firstNumber === '') return;
         if (secondNumber !== '' && operator !== '') {
             const result = updateResult();
+            
             if (typeof (result) === 'number') {
                 firstNumber = result;
+                justCalculated = true;
             }
             result_screen.textContent = firstNumber;
             operator = button.dataset.operator;
@@ -91,7 +94,7 @@ operatorButton.forEach((button) => {
         }
         else {
             operator = button.dataset.operator;
-
+           
             isSecondNumber = true;
         }
 
@@ -125,7 +128,7 @@ clear.addEventListener('click', () => {
     operator = '';
     isSecondNumber = false;
     justCalculated = false;
-    result_screen.textContent = '';
+    result_screen.textContent = '0';
 })
 
 function updateResult() {
@@ -137,3 +140,58 @@ function updateResult() {
         return result;
     }
 }
+
+decimal.addEventListener('click', ()=>{
+    if(result_screen.textContent.includes('.')){
+        return 
+    }else{
+        updateNumber(decimal.textContent);
+    }
+})
+
+backSpace.addEventListener('click', ()=>{
+   
+})
+
+backSpace.addEventListener('click', () => {
+    if (isSecondNumber) {
+        secondNumber = secondNumber.slice(0, -1);
+        result_screen.textContent = secondNumber || '0';
+    } else if (!justCalculated) {
+        firstNumber = firstNumber.slice(0, -1);
+        result_screen.textContent = firstNumber || '0';
+    }
+});
+document.addEventListener('keydown', (event) => {
+    const key = event.key;
+
+    // Numbers 0-9
+    if (key >= '0' && key <= '9') {
+        updateNumber(key);
+    }
+
+    // Operators + - * /
+    else if (['+', '-', '*', '/'].includes(key)) {
+        document.querySelector(`[data-operator="${key}"]`)?.click();
+    }
+
+    // Equals: Enter or =
+    else if (key === 'Enter' || key === '=') {
+        equalto.click();
+    }
+
+    // Decimal point
+    else if (key === '.') {
+        decimal.click();
+    }
+
+    // Backspace
+    else if (key === 'Backspace') {
+        backSpace.click();
+    }
+
+    // Clear
+    else if (key === 'Escape') {
+        clear.click();
+    }
+});
